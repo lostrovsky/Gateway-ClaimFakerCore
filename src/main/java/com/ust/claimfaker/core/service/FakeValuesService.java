@@ -195,7 +195,9 @@ public class FakeValuesService {
             if (values.size() == 0) {
                 return defaultIfNull;
             }
-            return values.get(randomService.nextInt(values.size()));
+            int nextInt = randomService.nextInt(values.size());
+            return values.get(nextInt);
+//            return values.get(randomService.nextInt(values.size()));
         } else if (isSlashDelimitedRegex(o.toString())) {
             return String.format("#{regexify '%s'}", trimRegexSlashes(o.toString()));
         } else {
