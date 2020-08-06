@@ -195,9 +195,21 @@ public class FakeValuesService {
             if (values.size() == 0) {
                 return defaultIfNull;
             }
+
             int nextInt = randomService.nextInt(values.size());
-            return values.get(nextInt);
-//            return values.get(randomService.nextInt(values.size()));
+
+            try {
+                return values.get(nextInt);
+                // return values.get(randomService.nextInt(values.size()));
+            }
+            catch (Exception e) {
+            	System.out.println("Array size: " + values.size() + " Random int selected: " + nextInt);
+            	System.out.println("Message: " + e.getMessage());
+            	System.out.println( e.getStackTrace());
+                System.exit(1);
+            	return null;
+            }
+            
         } else if (isSlashDelimitedRegex(o.toString())) {
             return String.format("#{regexify '%s'}", trimRegexSlashes(o.toString()));
         } else {

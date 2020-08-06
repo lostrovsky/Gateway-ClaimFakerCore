@@ -40,15 +40,15 @@ public class DbFakeHPP {
 		int MaxFakeTries = 10;
 		int numTries=0;
 		
-		if (fieldOrig.isEmpty() || fieldOrig.contentEquals("UNKNOWN") || fieldOrig.matches(zerosAndSpacesOnly) || fieldOrig.matches(repeatedChars) ) {
+		if (fieldOrig.isEmpty() || fieldOrig.toUpperCase().contentEquals("UNKNOWN") || fieldOrig.toUpperCase().contentEquals("NULL") || fieldOrig.matches(zerosAndSpacesOnly) || fieldOrig.matches(repeatedChars) ) {
 //			System.out.println("[" + fieldOrig + "]");
 			return fieldOrig;
 		}
 		
 		if (!fieldOrig.trim().contentEquals(fieldOrig)) {
-			System.out.print("Original Field - [" + fieldOrig + "]");
+//			System.out.print("Original Field - [" + fieldOrig + "]");
 			fieldOrig = fieldOrig.trim();
-			System.out.println("Trimmed Field - [" + fieldOrig + "]");
+//			System.out.println("Trimmed Field - [" + fieldOrig + "]");
 		}
 		
 		if(fieldName.contentEquals("numeric") || fieldName.contentEquals("alpha")) {
@@ -98,7 +98,7 @@ public class DbFakeHPP {
 			
 			if(fieldName.startsWith("alpha")) {
 				
-				int fSz = fieldOrig.length();
+//				int fSz = fieldOrig.length();
 
 				do 
 				{ 
@@ -108,7 +108,8 @@ public class DbFakeHPP {
 						System.exit(0);
 					}
 					
-					newFake = faker.lorem().fixedString(fSz).replace(' ', '6').replace('.','X').toUpperCase().substring(0, fieldOrig.length());
+					newFake = faker.bothify(fieldOrig.replaceAll("\\d", "#").replaceAll("[^#]", "?"), true);
+//					newFake = faker.lorem().fixedString(fSz).replace(' ', '6').replace('.','X').toUpperCase().substring(0, fieldOrig.length());
 					
 					if (numTries>1) {
 //						System.out.println("Try " + numTries + ", addding fake for " + fieldName + " : " + fieldOrig + " > " + newFake );
@@ -221,9 +222,6 @@ public class DbFakeHPP {
 
 
 			else if(fieldName.contentEquals("SSN"))  {
-				
-		//		if(fieldOrig.contentEquals("000000000")) return "000000000";
-		//		if(fieldOrig.contentEquals("         ")) return "         ";
 			
 				do 
 				{ 
@@ -233,8 +231,17 @@ public class DbFakeHPP {
 						System.exit(0);
 					}
 					
-					newFake = faker.idNumber().ssnValid().replaceAll("\\.", "").replaceAll("-", "").replaceAll("\\(", "").replaceAll("\\)", "").replaceAll(" ", "");
-//					System.out.println("Try " + numTries + ", addding fake for " + fieldName + " : " + fieldOrig + " > " + newFake );
+					int ssnTries = 0;
+					do {
+						if (++ssnTries>MaxFakeTries)
+						{
+							System.out.println("Could not make valid SSN for " + fieldName + " : " + fieldOrig + "\nToo many tries! Terminating...");
+							System.exit(0);
+						}
+						newFake = faker.idNumber().ssnValid().replaceAll("\\.", "").replaceAll("-", "").replaceAll("\\(", "").replaceAll("\\)", "").replaceAll(" ", "");
+					} while (!IsValidSSN(newFake));
+					
+					// System.out.println("Try " + numTries + ", addding fake for " + fieldName + " : " + fieldOrig + " > " + newFake );
 			
 				}while (!addFake(fieldName, fieldType, fieldOrig, newFake));
 				
@@ -412,6 +419,20 @@ if(fieldName == "birthDate")  {
 
 
 	}		
+
+	public static Boolean IsValidSSN (String ssn) {
+		
+		Boolean retVal = false;
+		
+		if (ssn.length() == 9 && ssn.matches("^[0-9]+$"))  {
+			if (!ssn.substring(0,3).contentEquals("000") && !ssn.substring(3,5).contentEquals("00") && !ssn.substring(5,9).contentEquals("0000")) {
+				retVal = true;
+			}
+		}
+		return retVal;
+
 	}
+
+}
 
 
