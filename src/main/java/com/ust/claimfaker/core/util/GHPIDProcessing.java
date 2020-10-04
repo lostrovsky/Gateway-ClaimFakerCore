@@ -12,7 +12,7 @@ public class GHPIDProcessing {
 		String retVal = null;
 		
 		if (idStr.length() == 10 && idStr.matches("^[0-9]+$"))  {
-			//Medicaid full ID (10 digits) logic
+			//Medicaid full ID (10 digits) fake logic
 			retVal = DbFakeHPP.findFake("numeric", "String", idStr,faker);
 			addToSplitFile("Medicaid_Recepient_ID", idStr, retVal, "MEDICAID");
 		}
@@ -23,6 +23,53 @@ public class GHPIDProcessing {
 
 		return retVal;
 
+	}
+
+	public static String medicaidRecepientIDAddCheckDigitFake (String idStr, Faker faker) {
+
+		String retVal = null;
+		char checkDigit;
+		
+		if (idStr.length() == 9 && idStr.matches("^[0-9]+$"))  {
+			//Medicaid ID add check digit logic and fake logic
+			checkDigit = calculateMedicaidCheckDigit(idStr);
+			idStr =  idStr.concat(String.valueOf(checkDigit));
+			retVal = DbFakeHPP.findFake("numeric", "String", idStr,faker);
+			addToSplitFile("Medicaid_Recepient_ID", idStr, retVal, "MEDICAID");
+		}
+		else  {
+			retVal = DbFakeHPP.findFake("numeric", "String", idStr,faker);
+			
+		}
+
+		return retVal;
+
+	}
+	
+	public static char calculateMedicaidCheckDigit (String idStr)
+	{
+		String checkDigitString = "";
+		double checkDigitSum = 0;
+		char checkDigit = '0';
+		int i = 0;
+				
+		for (i = 0; i <= 8; i++) {
+			
+			if (i % 2 == 0) {
+				checkDigitString=checkDigitString.concat(Integer.toString(2*Character.getNumericValue(idStr.charAt(i))));
+			}
+			else {
+				checkDigitString=checkDigitString.concat(Integer.toString(Character.getNumericValue(idStr.charAt(i))));
+			}
+		}
+
+		for (i = 0; i < checkDigitString.length(); i++) {
+			checkDigitSum += (double)Character.getNumericValue(checkDigitString.charAt(i));
+		}
+		
+		checkDigit = Character.forDigit((int)(Math.ceil(checkDigitSum/10)*10-checkDigitSum),10);
+		
+		return checkDigit;
 	}
 /*
 	public static String multiLOBIDFake (String idStr, Faker faker) {
