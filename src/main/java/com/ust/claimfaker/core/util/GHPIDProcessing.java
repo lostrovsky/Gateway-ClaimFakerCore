@@ -71,6 +71,24 @@ public class GHPIDProcessing {
 		
 		return checkDigit;
 	}
+	
+	public static String gatweayMemberIDFake (String idStr, Faker faker) {
+
+		String retVal = null;
+		
+		if (idStr.length() == 8 && idStr.matches("^[0-9]+$"))  {
+			//Gateway (8 digits) fake logic
+			retVal = DbFakeHPP.findFake("numeric", "String", idStr,faker);
+			addToSplitFile("Gateway_Member_ID", idStr, retVal, "ANY");
+		}
+		else  {
+			retVal = DbFakeHPP.findFake("numeric", "String", idStr,faker);
+			
+		}
+
+		return retVal;
+
+	}
 /*
 	public static String multiLOBIDFake (String idStr, Faker faker) {
 
@@ -160,13 +178,15 @@ public class GHPIDProcessing {
 	        ps.setString(3, fieldFake);
 	        ps.setString(4, LOB);
 	        
+	        ps.setString(5, "HRP");
+/*	        
 	        if (LOB.contentEquals("MEDICAID")) {
 	        	ps.setString(5, "HRP");
 	        }
 	        else {
 	        	ps.setString(5, "DST");
 	        }
-	        
+*/	        
 			ps.executeUpdate();
 
 			conn.close();
