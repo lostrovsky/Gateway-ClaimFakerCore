@@ -11,6 +11,8 @@ public class GHPIDProcessing {
 
 		String retVal = null;
 		
+//		idStr = idStr.trim();
+		
 		if (idStr.length() == 10 && idStr.matches("^[0-9]+$"))  {
 			//Medicaid full ID (10 digits) fake logic
 			retVal = DbFakeHPP.findFake("numeric", "String", idStr,faker);
@@ -75,7 +77,9 @@ public class GHPIDProcessing {
 	public static String gatweayMemberIDFake (String idStr, Faker faker) {
 
 		String retVal = null;
-		
+
+		idStr = idStr.trim();
+
 		if (idStr.length() == 8 && idStr.matches("^[0-9]+$"))  {
 			//Gateway (8 digits) fake logic
 			retVal = DbFakeHPP.findFake("numeric", "String", idStr,faker);
