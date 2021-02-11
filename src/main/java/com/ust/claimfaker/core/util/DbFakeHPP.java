@@ -5,7 +5,10 @@ import java.util.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Year;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -219,8 +222,69 @@ public class DbFakeHPP {
 			//	return padded;
 			
 				}
+/*
+			else if(fieldName.contentEquals("dob8"))  {
+				
+				Random random = new Random();
 
-
+				int intYear = 0;
+				int intMonth = 0;
+				int intDay = 0;
+				
+				if (fieldOrig.length()!= 8) {
+					return "20010101";
+				}
+				
+		        DateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+		        sdf.setLenient(false);
+		        try {
+		            Date date = sdf.parse(fieldOrig);
+		        } catch (ParseException e) {
+					return "20010101";
+		        }
+		
+				do 
+				{ 
+					if (++numTries>(MaxFakeTries*5))
+					{
+						System.out.println("Could not make fake for " + fieldName + " : " + fieldOrig + "\nToo many tries! Terminating...");
+						System.exit(0);
+					}
+					
+					intYear = random.nextInt(90) + 1930;
+					
+					intMonth = random.nextInt(12) + 1;
+					
+					if (intMonth ==  1 || intMonth ==  3 || intMonth ==  5 || intMonth ==  7 || intMonth ==  8 || intMonth ==  10 || intMonth ==  12) {
+						intDay =  random.nextInt(31) + 1;
+					}
+					else if (intMonth ==  4 || intMonth ==  6 || intMonth ==  9 || intMonth ==  11) {
+						intDay =  random.nextInt(30) + 1;
+					}
+					else {
+						if (intYear % 4 != 0) {
+							intDay =  random.nextInt(28) + 1;
+						} else {
+							intDay =  random.nextInt(29) + 1;
+						}
+					}
+					
+					if (intMonth > 12 || intDay > 31) { // This should never happen
+						System.out.println("Picked impossible date: " +  String.format("%02d", intMonth) + String.format("%02d", intDay));
+						intMonth = 1;
+						intDay = 1;
+					}
+					
+					newFake = String.valueOf(intYear) + String.format("%02d", intMonth) + String.format("%02d", intDay);
+					
+//					System.out.println("Try " + numTries + ", addding fake for " + fieldName + " : " + fieldOrig + " > " + newFake );
+		
+				}while (!addFake(fieldName, fieldType, fieldOrig, newFake));
+				
+				return newFake;	
+		
+			}
+*/
 			else if(fieldName.contentEquals("SSN"))  {
 			
 				do 
@@ -357,13 +421,73 @@ if(fieldName == "birthDate")  {
 // return padded;
 }
 */	
-	
 		}
 		
 		return retVal;
 
 	}
 
+
+	public static String findFakeDOBMostlyKeepYear(String strDate, Faker faker) {
+		
+		if (strDate.length()!= 8) {
+			return strDate;
+		}
+		
+        DateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        sdf.setLenient(false);
+        try {
+            Date date = sdf.parse(strDate);
+        } catch (ParseException e) {
+			return strDate;
+        }
+        
+        String origYear = strDate.substring(0, 4);
+        String origMonthDay = strDate.substring(4);
+        
+        String fakeYear = null;
+        String fakeMonthDay = null;
+        
+        if ((Year.now().getValue() - Integer.parseInt(origYear)) < 89) {
+        	fakeYear = origYear;
+        } 
+        else {
+        	fakeYear =  String.format("%04d", (Integer.parseInt(origYear) + 10));
+        }
+		
+		try { // Check database for exiting fake value
+			
+			String sql = "SELECT mmddFake FROM integration.date_map WHERE mmddOrig = \"" + origMonthDay + "\"";
+
+			dbSource dbi = new dbSource();
+
+			Connection conn = dbi.getConnection();
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+
+			while (rs.next()) {
+				fakeMonthDay = rs.getString(1);
+			}
+
+			conn.close();
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.exit(1);
+		}
+
+		if (fakeYear == null || fakeMonthDay == null)
+		{ 
+			System.out.println("NULL fakeYear or fakeMonthDay. Can not return fake DOB. Terminating...");
+			System.exit(0);
+		}
+
+		return fakeYear + fakeMonthDay;
+		
+	}
+	
+	
 	public static Boolean addFake(String fieldName, String fieldType, String fieldOrig, String fieldFake) {
 
 //		System.out.println("In addFake  VALUES ('" + fieldName + "', '" + fieldType + "', '" + fieldOrig + "', '" + fieldFake + "')");
