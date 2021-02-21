@@ -48,29 +48,31 @@ public class DbFakeGHP {
 		}
 		
 		if (!fieldOrig.trim().contentEquals(fieldOrig)) {
-//			System.out.print("Original Field - [" + fieldOrig + "]");
 			fieldOrig = fieldOrig.trim();
-//			System.out.println("Trimmed Field - [" + fieldOrig + "]");
 		}
 		
 		if(fieldName.contentEquals("numeric") || fieldName.contentEquals("alpha")) {
-			
 			Matcher matcher = patnumer.matcher(fieldOrig);
-			//System.out.println(matcher.matches());
 			if(matcher.matches()) {
 				fieldName = "numeric" + fieldOrig.length();
 			}
 			else {
 				fieldName = "alpha" + fieldOrig.length();
 			}
-		
 		}
-		
+		else if(fieldName.contentEquals("phone"))  {
+			String strPhone=fieldOrig.replaceAll("[^\\d]", "").trim();
+			if (strPhone.length() < 7 || strPhone.matches(repeatedChars)) {
+				return fieldOrig;
+			} else {
+				fieldOrig = strPhone;
+			}
+		}
 
 		try { // Check database for exiting fake value
 
 			String sql = "SELECT fieldName, fieldType, fieldOrig, fieldFake FROM integration.fakery "
-					+ "WHERE fieldName = \"" + fieldName + "\"  AND fieldOrig = \"" + fieldOrig + "\"";
+					+ "WHERE fieldName = \"" + fieldName + "\" AND fieldOrig = \"" + fieldOrig + "\"";
 
 			//System.out.println(" sql! " + sql + "\n");
 
@@ -110,7 +112,7 @@ public class DbFakeGHP {
 						System.exit(0);
 					}
 					
-					newFake = faker.bothify(fieldOrig.replaceAll("\\d", "#").replaceAll("[[a-zA-Z]", "?"), true);
+					newFake = faker.bothify(fieldOrig.replaceAll("\\d", "#").replaceAll("[a-zA-Z]", "?"), true);
 //					newFake = faker.bothify(fieldOrig.replaceAll("\\d", "#").replaceAll("[^#]", "?"), true);
 //					newFake = faker.lorem().fixedString(fSz).replace(' ', '6').replace('.','X').toUpperCase().substring(0, fieldOrig.length());
 					
@@ -144,12 +146,6 @@ public class DbFakeGHP {
 
 			else if(fieldName.contentEquals("phone"))  {
 				
-				String strPhone=fieldOrig.replaceAll("[^\\d]", "").trim();
-				
-				if (strPhone.length() < 7) {
-					return fieldOrig;
-				}
-				
 				Random random = new Random();
 				String[] NPAlist = {"717","412","724","484","814","610","267"};
 		
@@ -173,7 +169,7 @@ public class DbFakeGHP {
 					NPA = NPAlist[ac];
 					newFake = NPA + NNX + EXT;
 		
-				}while (!addFake(fieldName, fieldType, strPhone, newFake));
+				}while (!addFake(fieldName, fieldType, fieldOrig, newFake));
 								
 				return newFake;	
 		
