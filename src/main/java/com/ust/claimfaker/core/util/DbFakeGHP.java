@@ -101,9 +101,9 @@ public class DbFakeGHP {
 		{ // Make new fake value
 			
 			if(fieldName.startsWith("alpha")) {
+				Random random = new Random();
+				StringBuilder sb = new StringBuilder("ACDEFGHJKMNPQRTUVWXY");
 				
-//				int fSz = fieldOrig.length();
-
 				do 
 				{ 
 					if (++numTries>MaxFakeTries)
@@ -113,6 +113,24 @@ public class DbFakeGHP {
 					}
 					
 					newFake = faker.bothify(fieldOrig.replaceAll("\\d", "#").replaceAll("[a-zA-Z]", "?"), true);
+					
+					if (newFake.length()==11) { // Alpha 11 is likely to be MBI so apply specific rules
+						if (newFake.startsWith("0")) {
+							newFake = String.valueOf(random.nextInt(9) + 1) + newFake.substring(1);
+						}
+						
+						newFake = newFake.replace('S', sb.charAt(random.nextInt(20)));
+						newFake = newFake.replace('L', sb.charAt(random.nextInt(20)));
+						newFake = newFake.replace('O', sb.charAt(random.nextInt(20)));
+						newFake = newFake.replace('I', sb.charAt(random.nextInt(20)));
+						newFake = newFake.replace('B', sb.charAt(random.nextInt(20)));
+						newFake = newFake.replace('Z', sb.charAt(random.nextInt(20)));
+						
+						
+					}
+					
+					
+					
 //					newFake = faker.bothify(fieldOrig.replaceAll("\\d", "#").replaceAll("[^#]", "?"), true);
 //					newFake = faker.lorem().fixedString(fSz).replace(' ', '6').replace('.','X').toUpperCase().substring(0, fieldOrig.length());
 					
