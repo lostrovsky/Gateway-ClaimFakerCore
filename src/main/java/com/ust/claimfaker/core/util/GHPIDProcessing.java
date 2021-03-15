@@ -73,7 +73,8 @@ public class GHPIDProcessing {
 		
 		return checkDigit;
 	}
-	
+
+/* --- Old member id fake method
 	public static String gatweayMemberIDFake (String idStr, Faker faker) {
 
 		String retVal = null;
@@ -93,6 +94,31 @@ public class GHPIDProcessing {
 		return retVal;
 
 	}
+*/	
+	
+	public static String gatweayMemberIDFake (String idStr, Faker faker) {
+
+		String retVal = null;
+
+		idStr = idStr.trim();
+
+		if (idStr.length() == 8 && idStr.matches("^[0-9]+$") && idStr.startsWith("7"))  {
+			//Gateway (8 digits) fake logic likely to be medicare id
+			gatweayMedicareMemberIDFake (idStr, faker);
+		}
+		else if (idStr.length() == 8 && idStr.matches("^[0-9]+$") && (idStr.startsWith("2") || idStr.startsWith("1") || idStr.startsWith("0")))  {
+			//Gateway (8 digits) fake logic likely to be medicaid id
+			gatweayMedicaidMemberIDFake(idStr, faker);
+		}
+		else  {
+			retVal = DbFakeGHP.findFake("numeric", "String", idStr,faker);
+			
+		}
+
+		return retVal;
+
+	}	
+	
 	
 	public static String gatweayMedicareMemberIDFake (String idStr, Faker faker) {
 
@@ -104,6 +130,26 @@ public class GHPIDProcessing {
 //			retVal = DbFakeGHP.findFake("numeric", "String", idStr,faker);
 			retVal = DbFakeGHP.findFakeGatewayMemberId(idStr, faker, 70000001, 70999999);
 			addToSplitFile("Gateway_Member_ID", idStr, retVal, "MEDICARE");
+		}
+		else  {
+			retVal = DbFakeGHP.findFake("numeric", "String", idStr,faker);
+			
+		}
+
+		return retVal;
+
+	}
+	
+	public static String gatweayMedicaidMemberIDFake (String idStr, Faker faker) {
+
+		String retVal = null;
+
+		idStr = idStr.trim();
+
+		if (idStr.length() == 8 && idStr.matches("^[0-9]+$"))  {
+//			retVal = DbFakeGHP.findFake("numeric", "String", idStr,faker);
+			retVal = DbFakeGHP.findFakeGatewayMemberId(idStr, faker, 30000001, 39999999);
+			addToSplitFile("Gateway_Member_ID", idStr, retVal, "MEDICAID");
 		}
 		else  {
 			retVal = DbFakeGHP.findFake("numeric", "String", idStr,faker);
