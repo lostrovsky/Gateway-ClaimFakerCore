@@ -104,11 +104,11 @@ public class GHPIDProcessing {
 
 		if (idStr.length() == 8 && idStr.matches("^[0-9]+$") && idStr.startsWith("7"))  {
 			//Gateway (8 digits) fake logic likely to be medicare id
-			gatweayMedicareMemberIDFake (idStr, faker);
+			retVal = gatweayMedicareMemberIDFake (idStr, faker);
 		}
 		else if (idStr.length() == 8 && idStr.matches("^[0-9]+$") && (idStr.startsWith("2") || idStr.startsWith("1") || idStr.startsWith("0")))  {
 			//Gateway (8 digits) fake logic likely to be medicaid id
-			gatweayMedicaidMemberIDFake(idStr, faker);
+			retVal = gatweayMedicaidMemberIDFake(idStr, faker);
 		}
 		else  {
 			retVal = DbFakeGHP.findFake("numeric", "String", idStr,faker);
