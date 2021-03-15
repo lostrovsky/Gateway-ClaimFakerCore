@@ -103,7 +103,7 @@ public class GHPIDProcessing {
 		idStr = idStr.trim();
 
 		if (idStr.length() == 8 && idStr.matches("^[0-9]+$") && idStr.startsWith("7"))  {
-			//Gateway (8 digits) fake logic likely to be medicare id
+			//Gateway (8 digits) fake logic most likely to be medicare id
 			retVal = gatweayMedicareMemberIDFake (idStr, faker);
 		}
 		else if (idStr.length() == 8 && idStr.matches("^[0-9]+$") && (idStr.startsWith("2") || idStr.startsWith("1") || idStr.startsWith("0")))  {
